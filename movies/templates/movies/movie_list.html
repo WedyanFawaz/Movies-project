@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}My Movie Collection{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col">
+    <h1>
+      {% if genre %}
+        Movies in {{ genre.name }}
+      {% elif status %}
+        {{ status }} Movies
+      {% else %}
+        My Movie Collection
+      {% endif %}
+    </h1>
+  </div>
+</div>
+
+{% if movies %}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for movie in movies %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+          {% else %}
+            <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
+              <span>No Image</span>
+            </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ movie.title }} ({{ movie.release_year }})</h5>
+            <p class="card-text">Directed by {{ movie.director }}</p>
+            <div class="mb-2">
+              {% for genre in movie.genres.all %}
+                <a href="{% url 'genre-filter' genre.id %}" class="badge bg-secondary text-decoration-none">{{ genre.name }}</a>
+              {% endfor %}
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="badge bg-{% if movie.watched %}success{% else %}warning{% endif %}">
+                {% if movie.watched %}Watched{% else %}Unwatched{% endif %}
+              </span>
+              <span class="badge bg-info text-dark">{{ movie.rating }} ★</span>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent">
+            <div class="btn-group w-100">
+              <a href="{% url 'movie-detail' movie.id %}" class="btn btn-sm btn-primary">View</a>
+              <a href="{% url 'movie-update' movie.id %}" class="btn btn-sm btn-secondary">Edit</a>
+              <a href="{% url 'movie-delete' movie.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1">First</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+          </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item active">
+              <span class="page-link">{{ num }}</span>
+            </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="alert alert-info">
+    No movies found. <a href="{% url 'movie-create' %}">Add your first movie!</a>
+  </div>
+{% endif %}
+{% endblock %}

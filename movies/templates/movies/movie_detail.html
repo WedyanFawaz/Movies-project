@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    {% if movie.poster %}
+      <img src="{{ movie.poster.url }}" class="img-fluid rounded shadow-sm" alt="{{ movie.title }}">
+    {% else %}
+      <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded shadow-sm" style="height: 400px;">
+        <span>No Image</span>
+      </div>
+    {% endif %}
+  </div>
+  <div class="col-md-8">
+    <h1>{{ movie.title }} ({{ movie.release_year }})</h1>
+    <p class="lead">Directed by {{ movie.director }}</p>
+    
+    <div class="mb-3">
+      <strong>Genres:</strong>
+      {% for genre in movie.genres.all %}
+        <a href="{% url 'genre-filter' genre.id %}" class="badge bg-secondary text-decoration-none">{{ genre.name }}</a>
+      {% endfor %}
+    </div>
+    <div class="mb-3">
+      <strong>Rating:</strong>
+      {% for i in "12345" %}
+        {% if forloop.counter <= movie.rating %}
+          <span class="text-warning">★</span>
+        {% else %}
+          <span class="text-secondary">★</span>
+        {% endif %}
+      {% endfor %}
+      ({{ movie.rating }}/5)
+    </div>
+    <div class="mb-3">
+      <strong>Status:</strong>
+      <span class="badge bg-{% if movie.watched %}success{% else %}warning{% endif %}">
+        {% if movie.watched %}Watched{% else %}Unwatched{% endif %}
+      </span>
+    </div>
+    <div class="mb-3">
+      <strong>Added on:</strong> {{ movie.date_added|date:"F j, Y" }}
+    </div>
+    {% if movie.notes %}
+      <div class="mb-3">
+        <strong>Notes:</strong>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            {{ movie.notes|linebreaks }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div class="mt-4">
+      <a href="{% url 'movie-update' movie.id %}" class="btn btn-primary me-2">Edit</a>
+      <a href="{% url 'movie-delete' movie.id %}" class="btn btn-danger me-2">Delete</a>
+      <a href="{% url 'movie-list' %}" class="btn btn-secondary">Back to List</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

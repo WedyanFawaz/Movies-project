@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<h1>Search Results for "{{ query }}"</h1>
+
+{% if movies %}
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for movie in movies %}
+            <div class="col">
+                <div class="card h-100">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <span>No Image</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.title }} ({{ movie.release_year }})</h5>
+                        <p class="card-text">Directed by {{ movie.director }}</p>
+                        <div class="d-flex justify-content-between">
+                            <span class="badge bg-{% if movie.watched %}success{% else %}warning{% endif %}">
+                                {% if movie.watched %}Watched{% else %}Unwatched{% endif %}
+                            </span>
+                            <span class="badge bg-info">
+                                {{ movie.rating }} ★
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100">
+                            <a href="{% url 'movie-detail' movie.id %}" class="btn btn-sm btn-primary">View</a>
+                            <a href="{% url 'movie-update' movie.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                            <a href="{% url 'movie-delete' movie.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No movies found matching "{{ query }}".
+    </div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'movie-list' %}" class="btn btn-secondary">Back to All Movies</a>
+</div>
+{% endblock %}
